@@ -1,5 +1,6 @@
 import scapy.all as scapy
 from protocols.icmp import ICMP
+from protocols.arp import ARP
 
 
 class Dispatcher:
@@ -19,6 +20,8 @@ class Dispatcher:
         """Identifica o protocolo e retorna o parser instanciado."""
         if packet.haslayer(scapy.ICMP):
             return ICMP(packet)
+        if packet.haslayer(scapy.ARP):
+            return ARP(packet)
 
         return None
 
