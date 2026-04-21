@@ -1,35 +1,38 @@
-
 import sys
-import argparse 
+import argparse
 from capture.capture import Captura
+from parsing.dispatcher import Dispatcher 
+
 
 def parser_args():
     parser = argparse.ArgumentParser(
         prog="sniffer.py",
-        description="Sniffer de pacotes de rede usando Scapy",
+        description="Sniffer de pacotes de rede (Scapy)",
         formatter_class=argparse.RawTextHelpFormatter
     )
 
-    parser.add_argument(
-        "-i", "--interface",
-        metavar="INTERFACE",
-        help="Interface de rede para captura (ex: eth0, wlan0)"
-    )
+    parser.add_argument("-i", "--interface", required=True,
+                        metavar="INTERFACE",
+                        help="Interface de rede para captura (ex: eth0, wlan0)")
 
-    parser.add_argument(
-        "-f", "--filter",
-        metavar="BPF_FILTER",
-        default="",
-        help="Filtro BPF para captura (ex: 'host 192.168.1.1')"
-    )
+    parser.add_argument("-f", "--filter", default="",
+                        metavar="BPF_FILTER",
+                        help="Filtro BPF (ex: 'host 192.168.1.1', 'icmp')")
 
-    parser.add_argument(
-        "-c", "--count",
-        metavar="COUNT",
-        type=int,
-        default=0,
-        help="Número de pacotes a capturar (0 para sem limite)"
-    )
+    parser.add_argument("-c", "--count", type=int, default=0,
+                        metavar="N",
+                        help="Número de pacotes a capturar (0 = ilimitado)")
+
+    parser.add_argument("-p", "--protocol", action="append",
+                        metavar="PROTO",
+                        help="Filtrar por protocolo (repetível). Ex: -p ICMP -p ARP")
+
+    parser.add_argument("-w", "--write", default=None,
+                        metavar="FILE.pcap",
+                        help="Guardar captura num ficheiro .pcap")
+
+    parser.add_argument("--no-live", action="store_true",
+                        help="Não imprimir pacotes em tempo real")
 
     return parser.parse_args()
 
@@ -37,21 +40,31 @@ def parser_args():
 def main():
     args = parser_args()
 
-    if not args.interface:
-        print("Erro: A interface de rede é obrigatória.")
-        sys.exit(1)
+    dispatcher = Dispatcher(
+        protocol_filter=args.protocol,
+        live=not args.no_live,
+    )
 
     captura = Captura(
         interface=args.interface,
         bpf_filter=args.filter,
         count=args.count,
+        pcap_file=args.write,
+        callback=dispatcher.processar,
     )
 
-    print(f"Iniciando captura na interface {args.interface}")
-    captura.iniciarCaptura()
+    print(f"[] A capturar em {args.interface}"
+          f"{' (filtro BPF: ' + args.filter + ')' if args.filter else ''}")
+    print("[] Ctrl+C para parar\n")
+
+    try:
+        captura.iniciarCaptura()
+    except KeyboardInterrupt:
+        print("\n[*] Captura interrompida pelo utilizador.")
+
+    dispatcher.imprimirEstatisticas()
+
 
 if __name__ == "__main__":
     main()
-
-
 
