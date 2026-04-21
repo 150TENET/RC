@@ -46,6 +46,6 @@ class ProtocolParser(ABC):
         pass
 
     def header(self):
-        """Cabeçalho comum — formato tipo tcpdump."""
-        return (f"[{self.timestamp}] {self.interface} "
-                f"{self.protocol_name:<6} {self.length}B")
+        """Cabeçalho comum — alinhado com imprimir_cabecalho()."""
+        return (f"{self.timestamp:<26} {self.interface:<8} "
+                f"{self.protocol_name:<6} {str(self.length) + 'B':<9}")

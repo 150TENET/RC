@@ -60,7 +60,7 @@ def main():
     try:
         captura.iniciarCaptura()
     except KeyboardInterrupt:
-        print("\n[*] Captura interrompida pelo utilizador.")
+        print("\nCaptura interrompida pelo utilizador.")
 
     dispatcher.imprimirEstatisticas()
 

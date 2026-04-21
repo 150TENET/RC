@@ -1,5 +1,5 @@
 import scapy.all as scapy
-from parsing.parser_geral import ProtocolParser  # ← corrigido
+from parsing.parser_geral import ProtocolParser  
 
 
 class ICMP(ProtocolParser):

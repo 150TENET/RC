@@ -1,6 +1,5 @@
 import scapy.all as scapy
-from protocols.parser_geral import ProtocolParser
-
+from parsing.parser_geral import ProtocolParser
 
 class ARP(ProtocolParser):
     protocol_name = "ARP"
