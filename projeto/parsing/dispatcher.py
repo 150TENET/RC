@@ -1,5 +1,8 @@
 import scapy.all as scapy
 from protocols.icmp import ICMP
+from protocols.arp import ARP
+from protocols.udp import UDP
+from protocols.dns import DNS
 
 # Códigos ANSI de cor por protocolo
 CORES = {
@@ -7,6 +10,7 @@ CORES = {
     "TCP":  "\033[92m",   # verde
     "UDP":  "\033[93m",   # amarelo
     "ARP":  "\033[95m",   # magenta
+    "DNS":  "\033[94m",   # azul
 }
 RESET = "\033[0m"
 BOLD  = "\033[1m"
@@ -42,7 +46,12 @@ class Dispatcher:
         """Identifica o protocolo e retorna o parser instanciado."""
         if packet.haslayer(scapy.ICMP):
             return ICMP(packet)
-
+        if packet.haslayer(scapy.ARP):
+            return ARP(packet)
+        if packet.haslayer(scapy.UDP):
+            return UDP(packet)
+        if packet.haslayer(scapy.DNS):
+            return DNS(packet)
         return None
 
     def processar(self, packet):
