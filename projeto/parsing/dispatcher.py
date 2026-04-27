@@ -3,6 +3,8 @@ from protocols.icmp import ICMP
 from protocols.arp import ARP
 from protocols.udp import UDP
 from protocols.dns import DNS
+from protocols.tcp import TCP
+from protocols.ipv4 import IPv4
 
 # Códigos ANSI de cor por protocolo
 CORES = {
@@ -11,6 +13,7 @@ CORES = {
     "UDP":  "\033[93m",   # amarelo
     "ARP":  "\033[95m",   # magenta
     "DNS":  "\033[94m",   # azul
+    "IPv4": "\033[91m",   # vermelho
 }
 RESET = "\033[0m"
 BOLD  = "\033[1m"
@@ -32,11 +35,15 @@ class Dispatcher:
     e entrega-os ao parser apropriado.
     """
 
-    def __init__(self, protocol_filter=None, live=True):
+    def __init__(self, protocol_filter=None, ip_filter=None, mac_filter=None,
+             live=True, logger=None):
         self.protocol_filter = (
             [p.upper() for p in protocol_filter] if protocol_filter else None
         )
+        self.ip_filter = ip_filter
+        self.mac_filter = mac_filter.lower() if mac_filter else None
         self.live = live
+        self.logger = logger
         self.stats = {}
 
         if self.live:
@@ -44,14 +51,18 @@ class Dispatcher:
 
     def identificarProtocolo(self, packet):
         """Identifica o protocolo e retorna o parser instanciado."""
-        if packet.haslayer(scapy.ICMP):
-            return ICMP(packet)
         if packet.haslayer(scapy.ARP):
             return ARP(packet)
-        if packet.haslayer(scapy.UDP):
-            return UDP(packet)
+        if packet.haslayer(scapy.ICMP):
+            return ICMP(packet)
         if packet.haslayer(scapy.DNS):
             return DNS(packet)
+        if packet.haslayer(scapy.TCP):
+            return TCP(packet)
+        if packet.haslayer(scapy.UDP):
+            return UDP(packet)
+        if packet.haslayer(scapy.IP):
+            return IPv4(packet)
         return None
 
     def processar(self, packet):
@@ -63,12 +74,27 @@ class Dispatcher:
 
         if self.protocol_filter and parser.protocol_name not in self.protocol_filter:
             return
+        
+         # Filtro por IP (origem ou destino)
+        if self.ip_filter:
+            if parser.src_ip != self.ip_filter and parser.dst_ip != self.ip_filter:
+                return
+
+        # Filtro por MAC (origem ou destino) — comparação case-insensitive
+        if self.mac_filter:
+            src = (parser.src_mac or "").lower()
+            dst = (parser.dst_mac or "").lower()
+            if src != self.mac_filter and dst != self.mac_filter:
+                return
 
         self.stats[parser.protocol_name] = self.stats.get(parser.protocol_name, 0) + 1
 
         if self.live:
             cor = CORES.get(parser.protocol_name, "\033[97m")
             print(cor + str(parser) + RESET)
+        
+        if self.logger:
+            self.logger.registar(parser)
 
     def imprimirEstatisticas(self):
         if not self.stats:
