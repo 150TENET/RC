@@ -15,7 +15,7 @@
 **Instalação das dependências:**
  
 ```bash
-pip install scapy
+pip install -r requirements.txt
 ```
  
 > **Nota:** a captura de pacotes requer privilégios de root/administrador.
