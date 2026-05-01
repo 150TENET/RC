@@ -34,6 +34,10 @@ class ProtocolParser(ABC):
         if scapy.IP in self.packet:
             self.src_ip = self.packet[scapy.IP].src
             self.dst_ip = self.packet[scapy.IP].dst
+        elif self.packet.haslayer("IPv6"):
+            ipv6 = self.packet["IPv6"]
+            self.src_ip = ipv6.src
+            self.dst_ip = ipv6.dst
 
     @abstractmethod
     def _parse(self):

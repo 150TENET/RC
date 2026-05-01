@@ -1,0 +1,6 @@
+[
+  {"timestamp": "2026-04-30 14:40:48.853329", "interface": "wlp98s0", "protocol": "ARP", "length": 42, "src_mac": "04:68:74:61:7a:bf", "dst_mac": "ff:ff:ff:ff:ff:ff", "src_ip": "172.26.183.158", "dst_ip": "172.26.254.254", "summary": "Who has 172.26.254.254? Tell 172.26.183.158 (04:68:74:61:7a:bf)"},
+  {"timestamp": "2026-04-30 14:40:48.872251", "interface": "wlp98s0", "protocol": "ARP", "length": 60, "src_mac": "d4:7f:35:16:e2:9f", "dst_mac": "04:68:74:61:7a:bf", "src_ip": "172.26.254.254", "dst_ip": "172.26.183.158", "summary": "172.26.254.254 is at d4:7f:35:16:e2:9f"},
+  {"timestamp": "2026-04-30 14:40:49.853754", "interface": "wlp98s0", "protocol": "ARP", "length": 42, "src_mac": "04:68:74:61:7a:bf", "dst_mac": "d4:7f:35:16:e2:9f", "src_ip": "172.26.183.158", "dst_ip": "172.26.254.254", "summary": "Who has 172.26.254.254? Tell 172.26.183.158 (04:68:74:61:7a:bf)"},
+  {"timestamp": "2026-04-30 14:40:49.877362", "interface": "wlp98s0", "protocol": "ARP", "length": 60, "src_mac": "d4:7f:35:16:e2:9f", "dst_mac": "04:68:74:61:7a:bf", "src_ip": "172.26.254.254", "dst_ip": "172.26.183.158", "summary": "172.26.254.254 is at d4:7f:35:16:e2:9f"}
+]

@@ -24,6 +24,11 @@ class ARP(ProtocolParser):
             self.psrc = arp.psrc
             self.pdst = arp.pdst
 
+        self.src_mac = self.hwsrc
+        self.dst_mac = self.hwdst
+        self.src_ip = self.psrc
+        self.dst_ip = self.pdst
+        
     def summary(self):
         op_name = self.OP_MAP.get(self.op, f"Op {self.op}")
 
