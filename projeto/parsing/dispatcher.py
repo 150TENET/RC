@@ -21,7 +21,7 @@ BOLD  = "\033[1m"
 
 def imprimir_cabecalho():
     linha = (
-        f"{'DATA/HORA':<26} {'IFACE':<8} {'PROTO':<6} "
+        f"{'#NUM':<5} {'DATA/HORA':<26} {'IFACE':<8} {'PROTO':<6} "
         f"{'TAMANHO':<9} {'DETALHE'}"
     )
     separador = "-" * len(linha)
@@ -49,7 +49,9 @@ class Dispatcher:
         self.talkers_tracker = talkers_tracker
         self.stream_tracker = stream_tracker
         self.stats = {}
-        self.hierarchy = {}  # Hierarquia de protocolos
+        self.hierarchy = {}       # Hierarquia de protocolos
+        self.packet_count = 0     # Contador sequencial de pacotes que passam filtros
+        self.first_fragments = {} # (src_ip, dst_ip, ip_id) → packet_number do 1º fragmento
 
         if self.live:
             imprimir_cabecalho()
@@ -175,6 +177,27 @@ class Dispatcher:
 
         if not self._passa_filtro_fragmentacao(packet):
             return
+
+        # Atribuir número sequencial (só pacotes que passaram em todos os filtros)
+        self.packet_count += 1
+        parser.packet_number = self.packet_count
+
+        # Rastrear fragmentos IPv4 para referência cruzada entre pacotes
+        if packet.haslayer(scapy.IP):
+            ip = packet[scapy.IP]
+            flags = int(ip.flags)
+            is_mf = (flags & 0x01) != 0
+            offset = ip.frag
+            is_fragment = is_mf or offset > 0
+
+            if is_fragment:
+                chave = (ip.src, ip.dst, ip.id)
+                if offset == 0:
+                    # Primeiro fragmento — guardar o número deste pacote
+                    self.first_fragments[chave] = self.packet_count
+                else:
+                    # Fragmento subsequente — passar referência ao parser
+                    parser.frag_ref = self.first_fragments.get(chave)
 
         # Se passou em todos os filtros, contar e imprimir
         self.stats[parser.protocol_name] = self.stats.get(parser.protocol_name, 0) + 1

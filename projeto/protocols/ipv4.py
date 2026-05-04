@@ -30,6 +30,7 @@ class IPv4(ProtocolParser):
         self.flags_str = ""
         self.frag_offset = 0
         self.is_fragment = False
+        self.frag_ref = None  # packet_number do primeiro fragmento desta sequência
 
         if scapy.IP in self.packet:
             ip = self.packet[scapy.IP]
@@ -59,6 +60,13 @@ class IPv4(ProtocolParser):
             # offset vem em unidades de 8 bytes, multiplica para mostrar em bytes
             offset_bytes = self.frag_offset * 8
             base += f" | FRAGMENT flags={self.flags_str} offset={offset_bytes}B"
+
+            # Fragmentos não-iniciais mostram referência ao primeiro fragmento
+            if self.frag_offset > 0:
+                if self.frag_ref is not None:
+                    base += f" (frag of pkt #{self.frag_ref})"
+                else:
+                    base += " (frag of pkt ?)"
 
         return base
 

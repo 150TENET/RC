@@ -22,6 +22,7 @@ class ProtocolParser(ABC):
         self.dst_mac = None
         self.src_ip = None
         self.dst_ip = None
+        self.packet_number = None  # atribuído pelo Dispatcher após filtros
 
         self._parse_common()
         self._parse()
@@ -51,5 +52,6 @@ class ProtocolParser(ABC):
 
     def header(self):
         """Cabeçalho comum — alinhado com imprimir_cabecalho()."""
-        return (f"{self.timestamp:<26} {self.interface:<8} "
+        num = f"#{self.packet_number}" if self.packet_number is not None else "#?"
+        return (f"{num:<5} {self.timestamp:<26} {self.interface:<8} "
                 f"{self.protocol_name:<6} {str(self.length) + 'B':<9}")

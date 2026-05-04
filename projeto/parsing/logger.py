@@ -34,7 +34,7 @@ class Logger:
         elif self.formato == "csv":
             self.csv_writer = csv.writer(self.fp)
             self.csv_writer.writerow([
-                "timestamp", "interface", "protocol", "length",
+                "pkt_num", "timestamp", "interface", "protocol", "length",
                 "src_mac", "dst_mac", "src_ip", "dst_ip", "summary"
             ])
 
@@ -49,6 +49,7 @@ class Logger:
 
         elif self.formato == "csv":
             self.csv_writer.writerow([
+                parser.packet_number,
                 parser.timestamp,
                 parser.interface,
                 parser.protocol_name,
@@ -62,6 +63,7 @@ class Logger:
 
         elif self.formato == "json":
             obj = {
+                "pkt_num": parser.packet_number,
                 "timestamp": parser.timestamp,
                 "interface": parser.interface,
                 "protocol": parser.protocol_name,
